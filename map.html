@@ -1,0 +1,179 @@
+﻿<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport"
+          content="initial-scale=1,maximum-scale=1,user-scalable=no" />
+    <title>
+        Intro to MapView - Create a 2D map | Sample | ArcGIS API for JavaScript
+        4.23
+    </title>
+    <style>
+
+        html,
+        body,
+        #viewDiv {
+            padding: 0;
+            margin: 0;
+            height: 100%;
+            width: 100%;
+        }
+
+        #yeMei {
+            box-sizing: border-box;
+            height: 60px;
+            width: 100%;
+            background-color: white;
+            font-size: 45px;
+            color: black;
+            padding-left: 20px;
+        }
+
+        #basemapGallery {
+            height: 100%;
+        }
+    </style>
+    <link rel="stylesheet"
+          href="https://js.arcgis.com/4.23/esri/themes/light/main.css" />
+    <script src="https://js.arcgis.com/4.23/"></script>
+    <script>require([
+        "esri/Map",
+        "esri/views/MapView",
+        "esri/layers/FeatureLayer",
+        "esri/widgets/Legend",
+        "esri/widgets/ScaleBar",
+        "esri/widgets/Search",
+        "esri/widgets/LayerList",
+        "esri/widgets/Editor",
+        "esri/widgets/Print",
+        "esri/widgets/Expand",
+        "esri/widgets/BasemapGallery"
+      ], (
+        Map,
+        MapView,
+        FeatureLayer,
+        Legend,
+        ScaleBar,
+        Search,
+        LayerList,
+        Editor,
+        Print,
+        Expand,
+        BasemapGallery
+      ) => {
+        var flayer = new FeatureLayer({
+          url: "https://services3.arcgis.com/U26uBjSD32d7xvm2/ArcGIS/rest/services/中国农业资源环境分区/FeatureServer/"
+        });
+        const map1 = new Map({
+          basemap: "osm",
+          layers: [flayer]
+        });
+
+        const view1 = new MapView({
+          container: "viewDiv",
+          map: map1,
+          zoom: 4,
+          center: [105, 35] // longitude, latitude
+        });
+        const legend = new Legend({
+          view: view1,
+          layerInfos: [
+            {
+              layer: flayer,
+              title: "中国农业资源环境分区情况"
+            }
+          ]
+        });
+
+
+        var scaleBar = new ScaleBar({
+          view: view1,
+          style: "ruler",
+          unit: "metric"
+        });
+        // Add widget to the bottom left corner of the view
+        view1.ui.add(scaleBar, {
+          position: "bottom-left"
+        });
+
+        const searchWidget = new Search({
+          view: view1
+        });
+
+        view1.ui.add(searchWidget, {
+          position: "top-right",
+          index: 3
+        });
+        // At the very minimum, set the Editor's view
+
+        const layerList = new LayerList({
+          view: view1
+        });
+        // Adds widget below other elements in the top left corner of the view
+        view1.ui.add(layerList, {
+          position: "top-right"
+        });
+
+
+        // At the very minimum, set the Editor's view
+        const editor = new Editor({
+          view: view1
+        });
+        editorExpand = new Expand({
+          expandIconClass: "esri-icon-edit",
+          view: view1,
+          content: editor
+       });
+    view1.ui.add(editorExpand, "top-left");
+        // Typical usage
+
+
+        // At the very minimum, set the Editor's view
+       const print = new Print({
+          view: view1,
+          // specify your own print service
+          printServiceUrl:
+            "https://utility.arcgisonline.com/arcgis/rest/services/Utilities/PrintingTools/GPServer/Export%20Web%20Map%20Task"
+        });
+
+        printExpand = new Expand({
+          expandIconClass: "esri-icon-printer",
+          view: view1,
+          content: print
+       });
+    view1.ui.add(printExpand, "top-left");
+        // Typical usage
+
+        legendExpand = new Expand({
+          expandIconClass: "esri-icon-table",
+          view: view1,
+          content: legend
+       });
+    view1.ui.add(legendExpand, "top-left");
+        // Typical usage
+
+
+
+
+
+        // Adds widget below other elements in the top left corner of the view
+
+
+const basemapGallery = new BasemapGallery({
+  view: view1
+
+});
+// Add widget to the top right corner of the view
+view1.ui.add(basemapGallery, {
+
+  position: "top-right"
+});
+
+
+
+      });</script>
+</head>
+<body>
+    <div id="yeMei">中国农业资源环境分区</div>
+    <div id="viewDiv"></div>
+</body>
+</html>
