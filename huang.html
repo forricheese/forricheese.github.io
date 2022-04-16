@@ -1,0 +1,250 @@
+﻿<html>
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport"
+          content="initial-scale=1,maximum-scale=1,user-scalable=no" />
+    <title>
+        Intro to MapView - Create a 2D map | Sample | ArcGIS API for JavaScript
+        4.23
+    </title>
+    <style>
+        html,
+        body,
+        #viewDiv {
+            padding: 0;
+            margin: 0;
+            height: 100%;
+            width: 100%;
+            background-color: rgb(100,172,203 );
+        }
+
+        body {
+            position: relative;
+        }
+
+        .yeMei {
+            box-sizing: border-box;
+            height: 60px;
+            width: 124.4%;
+            background-color: rgb(100,172,203 );
+            font-size: 40px;
+            color: white;
+            padding-left: 50px;
+        }
+
+        #basemapGalleryDiv {
+            position: absolute;
+            top: 70px;
+            left: 100%;
+            height: 98%;
+            width: 200px;
+            z-index: 1;
+            background-color: rgb(100,172,203 );
+            color: white;
+        }
+
+        #other {
+            position: absolute;
+            z-index: 1;
+            left: 62%;
+            top: 70%;
+        }
+
+        #final {
+            height: 350px;
+            position: absolute;
+            z-index: 1;
+            left: 67%;
+            top: 70px;
+        }
+    </style>
+
+    <link rel="stylesheet"
+          href="https://js.arcgis.com/4.23/esri/themes/light/main.css" />
+    <script src="https://js.arcgis.com/4.23/"></script>
+
+    <script>
+      require([
+        "esri/Map",
+        "esri/views/MapView",
+        "esri/layers/FeatureLayer",
+        "esri/widgets/ScaleBar",
+        "esri/widgets/Home",
+        "esri/widgets/Legend",
+        "esri/widgets/Expand",
+        "esri/widgets/Search",
+        "esri/widgets/Print",
+        "esri/widgets/LayerList",
+        "esri/widgets/BasemapGallery",
+        "esri/widgets/Editor"
+
+      ], (
+        Map,
+        MapView,
+        FeatureLayer,
+        ScaleBar,
+        Home,
+        Legend,
+        Expand,
+        Search,
+        Print,
+        LayerList,
+        BasemapGallery,
+        Editor,
+
+      ) => {
+        const map = new Map({
+          basemap: "topo-vector"
+        });
+
+        const view = new MapView({
+          container: "viewDiv",
+          map: map,
+          zoom: 4,
+          center: [110, 35] // longitude, latitude
+        });
+
+        const template = {
+          // autocasts as new PopupTemplate()
+          title: "{所在省}:{学校名称} ",
+          content: [
+            {
+              // It is also possible to set the fieldInfos outside of the content
+              // directly in the popupTemplate. If no fieldInfos is specifically set
+              // in the content, it defaults to whatever may be set within the popupTemplate.
+              type: "fields",
+              fieldInfos: [
+                {
+                  fieldName: "学校名称",
+                  label: "学校名称"
+                },
+                {
+                  fieldName: "门类",
+                  label: "门类"
+                },
+                {
+                  fieldName: "专业名称",
+                  label: "专业名称"
+                },
+                {
+                  fieldName: "涉及科目",
+                  label: "专业科目"
+                }
+              ]
+            }
+          ]
+        };
+
+        // Reference the popupTemplate instance in the
+        // popupTemplate property of FeatureLayer
+        const featureLayer = new FeatureLayer({
+          url: "https://services3.arcgis.com/U26uBjSD32d7xvm2/arcgis/rest/services/%E5%9C%B0%E4%BF%A1%E9%81%A5%E6%84%9F%E7%A1%95%E5%A3%AB%E7%82%B9%E6%9F%A5%E8%AF%A2/FeatureServer",
+          popupTemplate: template
+        });
+        map.add(featureLayer);
+        const basemapGallery = new BasemapGallery({
+          view: view,
+          container: basemapGalleryDiv
+        });
+
+        //比例尺
+        let scaleBar = new ScaleBar({
+          view: view,
+          style: "ruler",
+          unit: "non-metric"
+        });
+        view.ui.add(scaleBar, {
+          position: "bottom-left"
+        });
+        //返回主视图
+        let homeWidget = new Home({
+          view: view
+        });
+        view.ui.add(homeWidget, "top-left");
+
+        //展开的图例
+        view.ui.add(
+          new Expand({
+            view: view,
+            content: new Legend({
+              view: view
+            })
+          }),
+          "top-left"
+        );
+
+        //搜索框
+        const searchWidget = new Search({
+          view: view
+        });
+        // Adds the search widget below other elements in
+        // the top left corner of the view
+        view.ui.add(searchWidget, {
+          position: "top-right",
+          index: 2
+        });
+
+        const layerList = new LayerList({
+          view: view,
+          listItemCreatedFunction: (event) => {
+            const item = event.item;
+            if (item.layer.type != "group") {
+              // don't show legend twice
+              item.panel = {
+                content: "legend",
+                open: true
+              };
+            }
+          }
+        });
+        view.ui.add(layerList, "bottom-right");
+
+        //const basemapGallery = new BasemapGallery({
+        //view: view
+        //});
+
+        //BasemapExpand = new Expand({
+        //expandIconClass: "esri-icon-basemap",
+        //view: view,
+        //content: basemapGallery
+        //});
+        //view.ui.add(BasemapExpand, "top-right");
+
+        //打印功能
+        const print = new Print({
+          view: view,
+          printServiceUrl:
+            "https://utility.arcgisonline.com/arcgis/rest/services/Utilities/PrintingTools/GPServer/Export%20Web%20Map%20Task"
+        });
+        PrintExpand = new Expand({
+          expandIconClass: "esri-icon-printer",
+          view: view,
+          content: print
+        });
+        view.ui.add(PrintExpand, "top-left");
+
+        const editor = new Editor({
+          view: view
+        });
+        editorExpand = new Expand({
+          //expandIconClass: "esri-icon-edit",
+          view: view,
+          content: editor
+        });
+        view.ui.add(editorExpand, "top-left");
+
+        //view1.ui.add(editor, "top-left");
+        // Typical usage
+
+      });
+    </script>
+</head>
+
+<body>
+    <div id="basemapGalleryDiv"></div>
+    <div class="yeMei">2022年地信遥感硕士点查询</div>
+    <div id="viewDiv"></div>
+    <div id="other"></div>
+    <div id="final"></div>
+</body>
+</html>
